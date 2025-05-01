@@ -8,6 +8,8 @@
 .import/
 export.cfg
 export_credentials.cfg
+addons/godot-git-plugin/
+addons/Godot_logger/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
