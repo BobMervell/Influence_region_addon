@@ -45,3 +45,4 @@ func _draw_perimeter()-> void:
 func _physics_process(delta: float) -> void:
 	if not region_shape:return
 	var x = region_shape.get_distance_magnitude(region_position_3D,marker_3d.position,nbr_sub_regions)
+	print(x)

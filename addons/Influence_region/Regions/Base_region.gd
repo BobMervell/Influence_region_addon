@@ -41,7 +41,7 @@ func find_first_greater_than(arr: Array, x: float) -> float:
 			low = mid +1
 	return result
 
-func get_distance_magnitude(center:Vector3,pos:Vector3,nbr_sub_regions:int) -> int:
+func get_distance_magnitude(center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
 	return 0
 
 func get_meshs(center:Vector3, nbr_sub_regions:int) -> Array[MeshInstance3D]:

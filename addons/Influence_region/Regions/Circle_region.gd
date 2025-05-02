@@ -36,12 +36,12 @@ func get_meshs(center:Vector3, nbr_sub_regions:int) -> Array[MeshInstance3D]:
 	meshs.append(circle_mesh)
 	return meshs
 
-func get_distance_magnitude(center:Vector3,pos:Vector3,nbr_sub_regions:int) -> int:
+func get_distance_magnitude(center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
 	if pos.y > center.y + detection_height or pos.y < center.y:
 		return 0
 	var dist:float = Vector2(center.x,center.z).distance_squared_to(
 			Vector2(pos.x,pos.z))
 	if dist > radius_list[-1]:
 		return 0
-	
-	return nbr_sub_regions - find_first_greater_than(radius_list,dist)
+	var magnitude:float = nbr_sub_regions - find_first_greater_than(radius_list,dist)
+	return magnitude/float(nbr_sub_regions)

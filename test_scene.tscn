@@ -15,4 +15,4 @@ region_shape = SubResource("Resource_sasra")
 nbr_sub_regions = 10
 
 [node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0500635)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.05467)
