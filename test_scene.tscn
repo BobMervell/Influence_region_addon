@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://dqw6e7sfrej2p"]
+
+[ext_resource type="Script" uid="uid://bkoef7s46dbrw" path="res://addons/Influence_region/Influence_region.gd" id="1_ia1lp"]
+[ext_resource type="Script" uid="uid://0tmn35a8d56q" path="res://addons/Influence_region/Regions/Circle_region.gd" id="2_ia1lp"]
+
+[sub_resource type="Resource" id="Resource_ia1lp"]
+script = ExtResource("2_ia1lp")
+radius = 11.97
+metadata/_custom_type_script = "uid://0tmn35a8d56q"
+
+[node name="Node" type="Node"]
+script = ExtResource("1_ia1lp")
+region_shape = SubResource("Resource_ia1lp")
+number_of_sub_regions = 10
