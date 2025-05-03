@@ -13,6 +13,7 @@ metadata/_custom_type_script = "uid://drj3q2te0rfn3"
 
 [node name="Node" type="Node"]
 script = ExtResource("1_uhqqe")
+draw_extremums = true
 magnitude_variation = 1
 region_shape = SubResource("Resource_ia1lp")
 nbr_sub_regions = 10
