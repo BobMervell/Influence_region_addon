@@ -7,6 +7,10 @@ extends Node
 		draw_region = new_value
 		_draw_perimeter()
 
+@export var draw_extremums:bool = true:
+	set(new_value):
+		draw_extremums = new_value
+		_draw_perimeter()
 ## Solver used for magnitude processing.
 ##[Br][B]Note:[/B] Binary is faster than sequential
 ## but doesn't work if sub-regions overlaps each-others.
@@ -55,11 +59,15 @@ var start_offset:Vector2=Vector2.ZERO
 var region_position_3D:Vector3 = Vector3.ZERO
 
 func _draw_perimeter()-> void:
-	if not draw_region or not region_shape: return
+	if not region_shape: return
 	for child in get_children():
 		if child != marker_3d : remove_child(child)
-	for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions,start_offset):
-		add_child(elt)
+	if draw_region:
+		for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions,start_offset):
+			add_child(elt)
+	if draw_extremums:
+		for elt in region_shape.get_extremum_meshs(region_position_3D):
+			add_child(elt)
 
 func _physics_process(delta: float) -> void:
 	if not region_shape:return

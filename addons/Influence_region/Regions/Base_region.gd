@@ -6,6 +6,8 @@ signal on_parameter_updated()
 enum SolverType {Sequential,Binary} 
 enum MagnitudeVariation {Constant,Ascending,Descending}
 
+var mesh_extremums:Array[Dictionary]
+
 ## Draw a multipointLine
 func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on:=false) -> MeshInstance3D:
 	var mesh_instance := MeshInstance3D.new()
@@ -60,3 +62,22 @@ func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_su
 	elif magnitude_variation == MagnitudeVariation.Descending:
 		return magnitude
 	return 0
+
+func update_extremum(mesh_indx:int,pos:Vector3) -> void:
+	mesh_extremums[mesh_indx]["max_x"] = max(mesh_extremums[mesh_indx]["max_x"],pos.x)
+	mesh_extremums[mesh_indx]["min_x"] = min(mesh_extremums[mesh_indx]["min_x"],pos.x)
+	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
+	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
+
+func get_extremum_meshs(center) -> Array[MeshInstance3D]:
+	var meshs:Array[MeshInstance3D]
+	for ext:Dictionary in mesh_extremums:
+		var arr:Array[Vector3] = [
+			Vector3(ext.max_x,center.y,ext.max_z),
+			Vector3(ext.max_x,center.y,ext.min_z),
+			Vector3(ext.min_x,center.y,ext.min_z),
+			Vector3(ext.min_x,center.y,ext.max_z),
+			Vector3(ext.max_x,center.y,ext.max_z)
+		]
+		meshs.append(draw_multi_line(arr,Color.RED))
+	return meshs

@@ -19,15 +19,22 @@ func _get_circle_array(center:Vector3,circle_radius:float,start_offset:Vector2,c
 	start_offset = start_offset * radius * (1 - circle_radius/radius)
 	var start_pos:Vector3 = center + Vector3(start_offset.x,0,start_offset.y)
 	circles[circle_nbr-1]["center"] = start_pos
+	mesh_extremums.append({
+		"max_x": -INF, "min_x": +INF,
+		"max_z": -INF, "min_z": +INF,
+	})
+	
 	var mesh_array:Array[Vector3]
 	for i in range(0,nbr_points + 1):
-		var pos:Vector3 = Vector3(circle_radius,0,0)
-		mesh_array.append(pos.rotated(Vector3.UP,i*precision) + start_pos)
+		var point_position:Vector3 = Vector3(circle_radius,0,0).rotated(Vector3.UP,i*precision) + start_pos
+		update_extremum(circle_nbr-1,point_position)
+		mesh_array.append(point_position)
 	return mesh_array
 
 func get_meshs(center:Vector3, nbr_sub_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
 	var meshs:Array[MeshInstance3D]
 	circles.clear()
+	mesh_extremums.clear()
 	for i in range(1,nbr_sub_regions+1):
 		var circle_radius:float = i * radius/(nbr_sub_regions)
 		circles.append({
