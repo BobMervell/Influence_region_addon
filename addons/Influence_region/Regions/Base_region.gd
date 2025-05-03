@@ -4,6 +4,7 @@ class_name BaseRegion
 
 signal on_parameter_updated()
 enum SolverType {Sequential,Binary} 
+enum MagnitudeVariation {Constant,Ascending,Descending}
 
 ## Draw a multipointLine
 func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on:=false) -> MeshInstance3D:
@@ -42,8 +43,20 @@ func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on
 			#low = mid +1
 	#return result
 
-func get_distance_magnitude(solver_type:SolverType,center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
+func get_distance_magnitude(solver_type:SolverType,magnitude_variation:MagnitudeVariation,
+		center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
 	return 0
 
 func get_meshs(center:Vector3, nbr_sub_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
 	return []
+
+## format the output amplitude to follow the currnt MagnitudeVariation mode
+func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_sub_regions:int) -> float:
+	if magnitude_variation == MagnitudeVariation.Constant:
+		return ceil(magnitude)
+	elif magnitude_variation == MagnitudeVariation.Ascending:
+		if magnitude == 0: return 0
+		return 1 + 1/float(nbr_sub_regions) - magnitude
+	elif magnitude_variation == MagnitudeVariation.Descending:
+		return magnitude
+	return 0
