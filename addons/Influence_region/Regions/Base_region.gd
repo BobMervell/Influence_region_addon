@@ -5,6 +5,19 @@ class_name BaseRegion
 signal on_parameter_updated()
 enum SolverType {Sequential,Binary} 
 enum MagnitudeVariation {Constant,Ascending,Descending}
+
+@export var sub_regions_distribution:Curve = _create_default_curve():
+	set(new_value):
+		sub_regions_distribution = new_value
+		sub_regions_distribution.changed.connect(func() -> void: on_parameter_updated.emit() )
+		on_parameter_updated.emit()
+func _create_default_curve() -> Curve:
+	var curve = Curve.new()
+	curve.add_point(Vector2.ZERO,Curve.TANGENT_LINEAR, Curve.TANGENT_LINEAR)
+	curve.add_point(Vector2.ONE, Curve.TANGENT_LINEAR)
+	curve.changed.connect(func() -> void: on_parameter_updated.emit() )
+	return curve
+
 @export_range(.1,100) var detection_height:int=1.
 
 var polygon_array:Array[Array]
@@ -21,6 +34,10 @@ func update_extremum(mesh_indx:int,pos:Vector3) -> void:
 	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
 	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
 
+func process_start_offset(start_offset:Vector2,x:float,radius:float)->Vector2:
+	var offset:Vector2 = start_offset
+	x = sub_regions_distribution.sample(x)
+	return offset * radius * (1- x)
 
 ## Returns the magnitude of the region at the given position (between 0 and 1)
 func get_distance_magnitude(solver_type:SolverType,magnitude_variation:MagnitudeVariation,

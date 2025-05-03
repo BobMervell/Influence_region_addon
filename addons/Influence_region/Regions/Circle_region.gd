@@ -13,7 +13,6 @@ var circles:Array[Dictionary]
 ## Returns the list of points needed to draw a circle
 func _get_circle_array(center:Vector3,circle_radius:float,start_offset:Vector2,circle_nbr:int) -> Array[Vector3]:
 	var precision = 2*PI/nbr_points
-	start_offset = start_offset * radius * (1 - circle_radius/radius)
 	var start_pos:Vector3 = center + Vector3(start_offset.x,0,start_offset.y)
 	circles[circle_nbr]["center"] = start_pos
 	mesh_extremums.append({
@@ -34,17 +33,20 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[Me
 	circles.clear()
 	mesh_extremums.clear()
 	for i in range(1,nbr_regions):
-		var circle_radius:float = (i) * radius/(nbr_regions+1)
+		var x:float = i/float(nbr_regions)
+		var circle_radius:float = x  * radius
+		var offset = process_start_offset(start_offset,x,radius)
 		circles.append({
 				"radius":pow(circle_radius,2)
 				})
-		var circle_array:Array[Vector3] = _get_circle_array(center,circle_radius,start_offset,i-1)
+		var circle_array:Array[Vector3] = _get_circle_array(center,circle_radius,offset,i-1)
 		var circle_mesh:MeshInstance3D = draw_multi_line(circle_array)
 		meshs.append(circle_mesh)
 	circles.append({
 				"radius":pow(radius,2)
 				})
-	var circle_array:Array[Vector3] = _get_circle_array(center,radius,start_offset,nbr_regions-1)
+	var offset = process_start_offset(start_offset,1,radius)
+	var circle_array:Array[Vector3] = _get_circle_array(center,radius,offset,nbr_regions-1)
 	var circle_mesh:MeshInstance3D = draw_multi_line(circle_array)
 	meshs.append(circle_mesh)
 	return meshs

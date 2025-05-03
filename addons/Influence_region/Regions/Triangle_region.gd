@@ -32,12 +32,8 @@ func _get_triangle_array(center:Vector3,triangle_size:float,start_offset:Vector2
 	mesh_array.append(center + Vector3(cos(alpha) * (length_C_A*triangle_size) ,0,sin(alpha) * (length_C_A*triangle_size))) #C
 	mesh_array.append(center) #A
 	
-	#start_offset = start_offset * radius * (1 - circle_radius/radius)
-	#var start_pos:Vector3 = center + Vector3(start_offset.x,0,start_offset.y)
-	
 	# offset triangle to put centroid in the center
 	var centroid:Vector3 = (mesh_array[0] + mesh_array[1] + mesh_array[2])/3
-	start_offset = start_offset * size * (1- triangle_size/size) 
 
 	var diff = (center+Vector3(start_offset.x,0,start_offset.y)) -centroid
 	for i in range(mesh_array.size()):
@@ -71,9 +67,12 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[Me
 			(length_C_A >= length_A_B +length_B_C) ):
 		return meshs
 	for i in range(1,nbr_regions):
-		var triangle_size:float = i/float(nbr_regions) * size
-		var triangle_mesh:MeshInstance3D = draw_multi_line(_get_triangle_array(center,triangle_size,start_offset,i-1))
+		var x:float = i/float(nbr_regions)
+		var triangle_size:float = x  * size
+		var offset = process_start_offset(start_offset,x,size)
+		var triangle_mesh:MeshInstance3D = draw_multi_line(_get_triangle_array(center,triangle_size,offset,i-1))
 		meshs.append(triangle_mesh)
-	var triangle_mesh:MeshInstance3D = draw_multi_line(_get_triangle_array(center,size,start_offset,nbr_regions-1))
+	var offset = process_start_offset(start_offset,1,size)
+	var triangle_mesh:MeshInstance3D = draw_multi_line(_get_triangle_array(center,size,offset,nbr_regions-1))
 	meshs.append(triangle_mesh)
 	return meshs
