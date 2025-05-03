@@ -15,6 +15,7 @@ metadata/_custom_type_script = "uid://drj3q2te0rfn3"
 script = ExtResource("1_uhqqe")
 magnitude_variation = 1
 region_shape = SubResource("Resource_sasra")
+nbr_regions = 10
 
 [node name="Marker3D" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.506225, 0.1, 0.55489)
