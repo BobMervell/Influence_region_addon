@@ -5,73 +5,78 @@ class_name BaseRegion
 signal on_parameter_updated()
 enum SolverType {Sequential,Binary} 
 enum MagnitudeVariation {Constant,Ascending,Descending}
+@export_range(.1,100) var detection_height:int=1.
 
+var polygon_array:Array[Array]
 var mesh_extremums:Array[Dictionary]
 
-## Draw a multipointLine
-func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on:=false) -> MeshInstance3D:
-	var mesh_instance := MeshInstance3D.new()
-	var immediate_mesh := ImmediateMesh.new()
-	var material := ORMMaterial3D.new()
-
-	mesh_instance.mesh = immediate_mesh
-	if shadow_on: mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	else: mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-
-	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
-	immediate_mesh.surface_add_vertex(position_list[0])
-	for i in range(1,position_list.size()-1):
-		immediate_mesh.surface_add_vertex(position_list[i])
-		immediate_mesh.surface_add_vertex(position_list[i])
-	immediate_mesh.surface_add_vertex(position_list[-1])
-	immediate_mesh.surface_end()
-
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.albedo_color = color
-	return mesh_instance
-
-#func find_first_greater_than(arr: Array, x: float) -> float:
-	#var low: int = 0
-	#var high: int = arr.size() - 1
-	#var result: float = 0
-	#var i = 0
-	#while low <= high  and i < 100:
-		#i+=1
-		#var mid: int = (low + high) / 2
-		#if arr[mid] > x:
-			#high = mid 
-			#result = mid 
-		#else:
-			#low = mid +1
-	#return result
-
-func get_distance_magnitude(solver_type:SolverType,magnitude_variation:MagnitudeVariation,
-		center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
-	return 0
-
-func get_meshs(center:Vector3, nbr_sub_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
+## Template function overriden by every child, returns a list with every shape to draw
+func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
 	return []
 
-## format the output amplitude to follow the currnt MagnitudeVariation mode
-func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_sub_regions:int) -> float:
-	if magnitude_variation == MagnitudeVariation.Constant:
-		magnitude = nbr_sub_regions + 1 - magnitude
-		return ceil(magnitude/float(nbr_sub_regions+1))
-	elif magnitude_variation == MagnitudeVariation.Ascending:
-		magnitude = (magnitude+1)/float(nbr_sub_regions)
-		if magnitude > 1: return 0
-		return magnitude
-	elif magnitude_variation == MagnitudeVariation.Descending:
-		magnitude = nbr_sub_regions + 1 - magnitude
-		return magnitude/float(nbr_sub_regions+1)
-	return 0
-
+## Updates the extemums of current mesh and the total region
 func update_extremum(mesh_indx:int,pos:Vector3) -> void:
 	mesh_extremums[mesh_indx]["max_x"] = max(mesh_extremums[mesh_indx]["max_x"],pos.x)
 	mesh_extremums[mesh_indx]["min_x"] = min(mesh_extremums[mesh_indx]["min_x"],pos.x)
 	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
 	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
 
+
+## Returns the magnitude of the region at the given position (between 0 and 1)
+func get_distance_magnitude(solver_type:SolverType,magnitude_variation:MagnitudeVariation,
+		center:Vector3,pos:Vector3,nbr_regions:int) -> float:
+	if pos.y > center.y + detection_height or pos.y < center.y:
+		return 0
+	var pos_2D:Vector2 = Vector2(pos.x,pos.z)
+	var magnitude:float = find_first_greater_than(solver_type,pos_2D)
+	return format_output(magnitude_variation,magnitude,nbr_regions)
+
+## Returns the index of the first shape containing the pos2D
+func find_first_greater_than(solver_type:SolverType,pos_2D:Vector2) -> float:
+	if solver_type == SolverType.Sequential:
+		return sequential_solver(pos_2D)
+	if solver_type == SolverType.Binary:
+		return binary_solver(pos_2D)
+	return polygon_array.size() -1
+
+## Solves each sub-region sequentially
+func sequential_solver(pos_2D:Vector2) -> int:
+	for i in range(polygon_array.size()):
+		if is_inside_polygon(pos_2D,i):
+			return i
+	return polygon_array.size() # final output -> 0
+
+## Solves each sub-region using binary algorithm (dichotomie)
+func binary_solver(pos_2D:Vector2):
+	var low: int = 0
+	var high: int = polygon_array.size()
+	var result: float = polygon_array.size()
+	var i=0
+	while low <= high and i < polygon_array.size():
+		i += 1
+		var mid: int = (low + high) / 2
+		if is_inside_polygon(pos_2D,mid):
+			high = mid 
+			result = mid 
+		else:
+			low = mid +1
+	return result
+
+## Checks if a position is inside a polygon
+func is_inside_polygon(pos_2D:Vector2,polygon_indx:int)-> bool:
+	#position outside the polygon box with padding
+	var edge_pos:Vector2 = Vector2(mesh_extremums[polygon_indx].max_x + .1 ,0) 
+	var nbr_collisions:int=0
+	for sides:Dictionary in polygon_array[polygon_indx]:
+		var A:Vector2 = Vector2(sides.A.x,sides.A.z)
+		var B:Vector2 = Vector2(sides.B.x,sides.B.z)
+		if do_vectors_collides(pos_2D,edge_pos,A,B):
+			nbr_collisions +=1
+	if nbr_collisions % 2 == 0:
+		return false
+	return true
+
+## Checks if to segments cross  
 func do_vectors_collides(vec1_A:Vector2,vec1_B:Vector2,
 		vec2_A:Vector2,vec2_B:Vector2) -> bool:
 	 # get infinite line expression of first segment
@@ -102,8 +107,44 @@ func do_vectors_collides(vec1_A:Vector2,vec1_B:Vector2,
 	if ((p1 > 0 and p2 > 0 ) or (p1 < 0 and p2 < 0 )): return false
 	return true
 
+## format the output amplitude to follow the current MagnitudeVariation mode
+func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_regions:int) -> float:
+	if magnitude_variation == MagnitudeVariation.Constant:
+		magnitude = nbr_regions + 1 - magnitude
+		return ceil(magnitude/float(nbr_regions+1))
+	elif magnitude_variation == MagnitudeVariation.Ascending:
+		magnitude = (magnitude+1)/float(nbr_regions+1)
+		if magnitude > 1: return 0
+		return magnitude
+	elif magnitude_variation == MagnitudeVariation.Descending:
+		magnitude = nbr_regions + 1 - magnitude
+		return magnitude/float(nbr_regions+1)
+	return 0
+
+## Draw a multiple lines
+func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on:=false) -> MeshInstance3D:
+	var mesh_instance := MeshInstance3D.new()
+	var immediate_mesh := ImmediateMesh.new()
+	var material := ORMMaterial3D.new()
+
+	mesh_instance.mesh = immediate_mesh
+	if shadow_on: mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	else: mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
+	immediate_mesh.surface_add_vertex(position_list[0])
+	for i in range(1,position_list.size()-1):
+		immediate_mesh.surface_add_vertex(position_list[i])
+		immediate_mesh.surface_add_vertex(position_list[i])
+	immediate_mesh.surface_add_vertex(position_list[-1])
+	immediate_mesh.surface_end()
+
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = color
+	return mesh_instance
+
 ##DEPRECATED
-## (only used for devellopement debugging )
+## (only used for developpement debugging )
 func get_extremum_meshs(center) -> Array[MeshInstance3D]:
 	var meshs:Array[MeshInstance3D]
 	for ext:Dictionary in mesh_extremums:

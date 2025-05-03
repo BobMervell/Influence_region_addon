@@ -12,17 +12,20 @@ extends Node
 ## but doesn't work if sub-regions overlaps each-others.
 @export var solver_type: BaseRegion.SolverType = BaseRegion.SolverType.Sequential
 
+## The way the magnitude varies when the position get's further away from the center
 @export var magnitude_variation:BaseRegion.MagnitudeVariation = BaseRegion.MagnitudeVariation.Constant
 
+## The different shapes available.
+## [Br][B]Note:[/B] BaseRegion is not to be directly used it is a base class for the different shapes
 @export var region_shape:BaseRegion:
 	set(new_value):
 		region_shape = new_value
 		region_shape.on_parameter_updated.connect(_draw_perimeter)
 		_draw_perimeter()
 
-@export_range(0, 100,1,"exp")var nbr_sub_regions:int:
+@export_range(1,100)var nbr_regions:int:
 	set(new_value):
-		nbr_sub_regions = new_value
+		nbr_regions = new_value
 		_draw_perimeter()
 
 @export var region_position:Vector2 = Vector2.ZERO:
@@ -59,15 +62,15 @@ func _draw_perimeter()-> void:
 	for child in get_children():
 		if child != marker_3d : remove_child(child)
 	if draw_region:
-		for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions,start_offset):
+		for elt in region_shape.get_meshs(region_position_3D,nbr_regions,start_offset):
 			add_child(elt)
 	## DEPRECATED 
-	## only use in devellopement debugging
+	## (only used for developpement debugging )
 	#for elt in region_shape.get_extremum_meshs(region_position_3D):
 		#add_child(elt)
 
 func _physics_process(delta: float) -> void:
 	if not region_shape:return
 	var x = region_shape.get_distance_magnitude(solver_type,magnitude_variation
-			,region_position_3D,marker_3d.position,nbr_sub_regions)
+			,region_position_3D,marker_3d.position,nbr_regions)
 	#print(x)
