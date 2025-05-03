@@ -58,7 +58,7 @@ func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_su
 		magnitude = nbr_sub_regions + 1 - magnitude
 		return ceil(magnitude/float(nbr_sub_regions+1))
 	elif magnitude_variation == MagnitudeVariation.Ascending:
-		magnitude = (magnitude+1)/float(nbr_sub_regions+1)
+		magnitude = (magnitude+1)/float(nbr_sub_regions)
 		if magnitude > 1: return 0
 		return magnitude
 	elif magnitude_variation == MagnitudeVariation.Descending:
@@ -71,6 +71,36 @@ func update_extremum(mesh_indx:int,pos:Vector3) -> void:
 	mesh_extremums[mesh_indx]["min_x"] = min(mesh_extremums[mesh_indx]["min_x"],pos.x)
 	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
 	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
+
+func do_vectors_collides(vec1_A:Vector2,vec1_B:Vector2,
+		vec2_A:Vector2,vec2_B:Vector2) -> bool:
+	 # get infinite line expression of first segment
+	var a1 = vec1_B.y - vec1_A.y
+	var b1 = vec1_A.x - vec1_B.x
+	var c1 = (vec1_B.x * vec1_A.y) - (vec1_A.x * vec1_B.y)
+	
+	# get infinite line expression of first segment
+	var a2 = vec2_B.y - vec2_A.y
+	var b2 = vec2_A.x - vec2_B.x
+	var c2 = (vec2_B.x * vec2_A.y) - (vec2_A.x * vec2_B.y)
+	
+	if is_equal_approx(a1*b2 , a2*b1): return false # Colinear
+	
+	# solve first line equation with both segments points 
+	var p1 = (a1 * vec2_A.x) + (b1 * vec2_A.y) + c1
+	var p2 = (a1 * vec2_B.x) + (b1 * vec2_B.y) + c1
+	
+	#if p1 and p2 same sign then they are on the same side of the line thus can't have crossed first line
+	if ((p1 > 0 and p2 > 0 ) or (p1 < 0 and p2 < 0 )): return false
+	
+	# The fact that vector 2 intersected the infinite line 1 above doesn't 
+	# mean it also intersects the vector 1. Vector 1 is only a subset of that
+	# infinite line 1, so it may have intersected that line before the vector
+	# started or after it ended. Thus we need to check the other way around.
+	p1 = (a2 * vec1_A.x) + (b2 * vec1_A.y) + c2
+	p2 = (a2 * vec1_B.x) + (b2 * vec1_B.y) + c2
+	if ((p1 > 0 and p2 > 0 ) or (p1 < 0 and p2 < 0 )): return false
+	return true
 
 ##DEPRECATED
 ## (only used for devellopement debugging )

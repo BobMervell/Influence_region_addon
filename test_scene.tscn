@@ -1,18 +1,22 @@
 [gd_scene load_steps=4 format=3 uid="uid://dqw6e7sfrej2p"]
 
 [ext_resource type="Script" uid="uid://bkoef7s46dbrw" path="res://addons/Influence_region/Influence_region.gd" id="1_uhqqe"]
-[ext_resource type="Script" uid="uid://0tmn35a8d56q" path="res://addons/Influence_region/Regions/Circle_region.gd" id="2_ia1lp"]
+[ext_resource type="Script" uid="uid://drj3q2te0rfn3" path="res://addons/Influence_region/Regions/Triangle_region.gd" id="2_ia1lp"]
 
-[sub_resource type="Resource" id="Resource_sasra"]
+[sub_resource type="Resource" id="Resource_ia1lp"]
 script = ExtResource("2_ia1lp")
-radius = 1.0
+length_A_B = 5.0
+length_B_C = 5.0
+length_C_A = 5.0
 detection_height = 1.0
-metadata/_custom_type_script = "uid://0tmn35a8d56q"
+metadata/_custom_type_script = "uid://drj3q2te0rfn3"
 
 [node name="Node" type="Node"]
 script = ExtResource("1_uhqqe")
-region_shape = SubResource("Resource_sasra")
-nbr_sub_regions = 4
+magnitude_variation = 1
+region_shape = SubResource("Resource_ia1lp")
+nbr_sub_regions = 10
+start_offset_x = -1.0
 
 [node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.119813, 0.1, 0.401717)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.87286, 0.1, 1.52513)
