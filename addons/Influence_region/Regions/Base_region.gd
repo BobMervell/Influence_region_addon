@@ -55,12 +55,15 @@ func get_meshs(center:Vector3, nbr_sub_regions:int,start_offset:Vector2) -> Arra
 ## format the output amplitude to follow the currnt MagnitudeVariation mode
 func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_sub_regions:int) -> float:
 	if magnitude_variation == MagnitudeVariation.Constant:
-		return ceil(magnitude)
+		magnitude = nbr_sub_regions + 1 - magnitude
+		return ceil(magnitude/float(nbr_sub_regions+1))
 	elif magnitude_variation == MagnitudeVariation.Ascending:
-		if magnitude == 0: return 0
-		return 1 + 1/float(nbr_sub_regions) - magnitude
-	elif magnitude_variation == MagnitudeVariation.Descending:
+		magnitude = (magnitude+1)/float(nbr_sub_regions+1)
+		if magnitude > 1: return 0
 		return magnitude
+	elif magnitude_variation == MagnitudeVariation.Descending:
+		magnitude = nbr_sub_regions + 1 - magnitude
+		return magnitude/float(nbr_sub_regions+1)
 	return 0
 
 func update_extremum(mesh_indx:int,pos:Vector3) -> void:
@@ -69,6 +72,8 @@ func update_extremum(mesh_indx:int,pos:Vector3) -> void:
 	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
 	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
 
+##DEPRECATED
+## (only used for devellopement debugging )
 func get_extremum_meshs(center) -> Array[MeshInstance3D]:
 	var meshs:Array[MeshInstance3D]
 	for ext:Dictionary in mesh_extremums:
