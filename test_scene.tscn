@@ -12,8 +12,8 @@ metadata/_custom_type_script = "uid://0tmn35a8d56q"
 [node name="Node" type="Node"]
 script = ExtResource("1_uhqqe")
 region_shape = SubResource("Resource_ia1lp")
-nbr_sub_regions = 10
+nbr_sub_regions = 20
 start_offset_z = -10.0
 
 [node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.93543, 0.0199992, -3.42112)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.119383, 0.0199992, -7.16994)

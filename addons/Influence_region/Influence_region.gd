@@ -13,6 +13,11 @@ extends Node
 		region_shape.on_parameter_updated.connect(_draw_perimeter)
 		_draw_perimeter()
 
+## Solver used for magnitude processing.
+##[Br][B]Note:[/B] Binary is faster than sequential
+## but doesn't work if sub-regions overlaps each-others.
+@export var solver_type: BaseRegion.SolverType
+
 @export_range(0, 100,1,"exp")var nbr_sub_regions:int:
 	set(new_value):
 		nbr_sub_regions = new_value
@@ -57,5 +62,5 @@ func _draw_perimeter()-> void:
 
 func _physics_process(delta: float) -> void:
 	if not region_shape:return
-	var x = region_shape.get_distance_magnitude(region_position_3D,marker_3d.position,nbr_sub_regions)
+	var x = region_shape.get_distance_magnitude(solver_type,region_position_3D,marker_3d.position,nbr_sub_regions)
 	print(x)

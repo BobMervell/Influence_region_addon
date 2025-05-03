@@ -3,6 +3,7 @@ extends Resource
 class_name BaseRegion
 
 signal on_parameter_updated()
+enum SolverType {Sequential,Binary} 
 
 ## Draw a multipointLine
 func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on:=false) -> MeshInstance3D:
@@ -41,7 +42,7 @@ func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on
 			#low = mid +1
 	#return result
 
-func get_distance_magnitude(center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
+func get_distance_magnitude(solver_type:SolverType,center:Vector3,pos:Vector3,nbr_sub_regions:int) -> float:
 	return 0
 
 func get_meshs(center:Vector3, nbr_sub_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
