@@ -3,7 +3,7 @@ extends BaseRegion
 class_name CircleRegion
 
 
-@export_range(.01,100,.01,"or_greater") var radius:float = 1:
+@export_range(.01,100,.01,"exp","or_greater") var radius:float = 1:
 	set(new_value):
 		radius = new_value
 		on_parameter_updated.emit()

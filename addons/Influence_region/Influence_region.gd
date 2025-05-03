@@ -58,12 +58,11 @@ func _draw_perimeter()-> void:
 	if not draw_region or not region_shape: return
 	for child in get_children():
 		if child != marker_3d : remove_child(child)
-	if region_shape is CircleRegion:
-		for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions,start_offset):
-			add_child(elt)
+	for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions,start_offset):
+		add_child(elt)
 
 func _physics_process(delta: float) -> void:
 	if not region_shape:return
 	var x = region_shape.get_distance_magnitude(solver_type,magnitude_variation
 			,region_position_3D,marker_3d.position,nbr_sub_regions)
-	print(x)
+	#print(x)
