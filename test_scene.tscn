@@ -3,16 +3,17 @@
 [ext_resource type="Script" uid="uid://bkoef7s46dbrw" path="res://addons/Influence_region/Influence_region.gd" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://0tmn35a8d56q" path="res://addons/Influence_region/Regions/Circle_region.gd" id="2_ia1lp"]
 
-[sub_resource type="Resource" id="Resource_sasra"]
+[sub_resource type="Resource" id="Resource_ia1lp"]
 script = ExtResource("2_ia1lp")
 radius = 1.0
-detection_height = 0.0
+detection_height = 1.0
 metadata/_custom_type_script = "uid://0tmn35a8d56q"
 
 [node name="Node" type="Node"]
 script = ExtResource("1_uhqqe")
-region_shape = SubResource("Resource_sasra")
+region_shape = SubResource("Resource_ia1lp")
 nbr_sub_regions = 10
+start_offset_z = -10.0
 
 [node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.05467)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.93543, 0.0199992, -3.42112)

@@ -13,7 +13,7 @@ extends Node
 		region_shape.on_parameter_updated.connect(_draw_perimeter)
 		_draw_perimeter()
 
-@export_range(0,10) var nbr_sub_regions:int:
+@export_range(0, 100,1,"exp")var nbr_sub_regions:int:
 	set(new_value):
 		nbr_sub_regions = new_value
 		_draw_perimeter()
@@ -23,7 +23,7 @@ extends Node
 		region_position = new_value
 		region_position_3D = Vector3(region_position.x,region_position_y,region_position.y)
 		_draw_perimeter()
-		
+
 ##Ignored in 2D
 @export var region_position_y:float = 0.:
 	set(new_value):
@@ -31,6 +31,19 @@ extends Node
 		region_position_3D = Vector3(region_position.x,region_position_y,region_position.y)
 		_draw_perimeter()
 
+@export_range(-1,1,.001,"or_greater","or_less") var start_offset_x:float = 0:
+	set(new_value):
+		start_offset_x = new_value
+		start_offset.x = start_offset_x
+		_draw_perimeter()
+
+@export_range(-1,1,.001,"or_greater","or_less") var start_offset_z:float = 0:
+	set(new_value):
+		start_offset_z = new_value
+		start_offset.y = start_offset_z
+		_draw_perimeter()
+
+var start_offset:Vector2=Vector2.ZERO
 
 var region_position_3D:Vector3 = Vector3.ZERO
 
@@ -39,7 +52,7 @@ func _draw_perimeter()-> void:
 	for child in get_children():
 		if child != marker_3d : remove_child(child)
 	if region_shape is CircleRegion:
-		for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions):
+		for elt in region_shape.get_meshs(region_position_3D,nbr_sub_regions,start_offset):
 			add_child(elt)
 
 func _physics_process(delta: float) -> void:
