@@ -116,7 +116,7 @@ func is_inside_polygon(pos_2D:Vector2,polygon_indx:int)-> bool:
 	if (pos_2D.x < mesh_extremums[polygon_indx]["min_x"] or pos_2D.x > mesh_extremums[polygon_indx]["max_x"] or
 			pos_2D.y< mesh_extremums[polygon_indx]["min_z"] or pos_2D.y > mesh_extremums[polygon_indx]["max_z"] ):
 		return false
-	var edge_pos:Vector2 = Vector2(mesh_extremums[polygon_indx].max_x + .1 ,0) 
+	var edge_pos:Vector2 = Vector2( mesh_extremums[polygon_indx].max_x + 1 ,0) 
 	var nbr_collisions:int=0
 	for sides:Dictionary in polygon_array[polygon_indx]:
 		var A:Vector2 = Vector2(sides.A.x,sides.A.z)
@@ -161,15 +161,16 @@ func do_vectors_collides(vec1_A:Vector2,vec1_B:Vector2,
 ## format the output amplitude to follow the current MagnitudeVariation mode
 func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_regions:int) -> float:
 	if magnitude_variation == MagnitudeVariation.Constant:
-		magnitude = nbr_regions + 1 - magnitude
-		return ceil(magnitude/float(nbr_regions+1))
+		magnitude = magnitude/float(nbr_regions)
+		if magnitude >= 1: return 0
+		return ceil(magnitude)
 	elif magnitude_variation == MagnitudeVariation.Ascending:
-		magnitude = (magnitude+1)/float(nbr_regions+1)
+		magnitude = (magnitude+1)/float(nbr_regions)
 		if magnitude > 1: return 0
 		return magnitude
 	elif magnitude_variation == MagnitudeVariation.Descending:
-		magnitude = nbr_regions + 1 - magnitude
-		return magnitude/float(nbr_regions+1)
+		magnitude = nbr_regions - magnitude
+		return magnitude/float(nbr_regions)
 	return 0
 
 ## Draw a multiple lines

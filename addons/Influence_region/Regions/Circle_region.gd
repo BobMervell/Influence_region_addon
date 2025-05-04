@@ -57,7 +57,7 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
 ## Override perimeter detection for simpler inside/outside detection (radius based).
 #region Detection
 
-func circle_sequential_solver(pos_2D:Vector2) -> int:
+func sequential_solver(pos_2D:Vector2) -> int:
 	for i in range(circles.size()):
 		var center_2D:Vector2 = Vector2(circles[i].center.x,circles[i].center.z)
 		if pos_2D.distance_squared_to(center_2D) < circles[i].radius:
@@ -65,7 +65,7 @@ func circle_sequential_solver(pos_2D:Vector2) -> int:
 	return circles.size() # final output -> 0
 
 
-func circle_binary_solver(pos_2D):
+func binary_solver(pos_2D):
 	var low: int = 0
 	var high: int = circles.size()
 	var result: float = circles.size()
