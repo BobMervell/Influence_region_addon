@@ -20,8 +20,15 @@ func _create_default_curve() -> Curve:
 
 @export_range(.1,100) var detection_height:int=1.
 
+## List of list list of thw points in each side of the polygon
 var polygon_array:Array[Array]
+## List of the extremums of each sub region
 var mesh_extremums:Array[Dictionary]
+## Extremum of all the regions combined
+var total_extremums:Dictionary[String,float] = {
+		"max_x": -INF, "min_x": +INF,
+		"max_z": -INF, "min_z": +INF,
+	}
 
 ## Template function overriden by every child, returns a list with every shape to draw
 func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
@@ -30,11 +37,21 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
 
 ## Updates the extemums of current mesh and the total region
 func update_extremum(mesh_indx:int,pos:Vector3) -> void:
+	if total_extremums.is_empty():
+		total_extremums = {
+		"max_x": -INF, "min_x": +INF,
+		"max_z": -INF, "min_z": +INF,
+	}
 	mesh_extremums[mesh_indx]["max_x"] = max(mesh_extremums[mesh_indx]["max_x"],pos.x)
 	mesh_extremums[mesh_indx]["min_x"] = min(mesh_extremums[mesh_indx]["min_x"],pos.x)
 	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
 	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
+	total_extremums["max_x"] = max(total_extremums["max_x"],pos.x)
+	total_extremums["min_x"] = min(total_extremums["min_x"],pos.x)
+	total_extremums["max_z"] = max(total_extremums["max_z"],pos.z)
+	total_extremums["min_z"] = min(total_extremums["min_z"],pos.z)
 
+## Returns a color between red ans yelllow depending on the value of region_x 
 func get_region_color(region_x:float,magnitude_variation:int)-> Color:
 	if magnitude_variation == MagnitudeVariation.Constant:
 		return Color.RED
@@ -44,6 +61,7 @@ func get_region_color(region_x:float,magnitude_variation:int)-> Color:
 		return lerp(Color.RED,Color.YELLOW,region_x)
 	return Color.WHITE
 
+## Returns the positional offset of the current sub_region
 func process_start_offset(start_offset:Vector2,x:float,radius:float)->Vector2:
 	var offset:Vector2 = start_offset
 	x = sub_regions_distribution.sample(x)
@@ -54,6 +72,9 @@ func get_distance_magnitude(solver_type:SolverType,magnitude_variation:Magnitude
 		center:Vector3,pos:Vector3,nbr_regions:int) -> float:
 	if pos.y > center.y + detection_height or pos.y < center.y:
 		return 0
+	if (pos.x < total_extremums["min_x"] or pos.x > total_extremums["max_x"] or
+			pos.z< total_extremums["min_z"] or pos.z > total_extremums["max_z"] ):
+		return 0 
 	var pos_2D:Vector2 = Vector2(pos.x,pos.z)
 	var magnitude:float = find_first_greater_than(solver_type,pos_2D)
 	return format_output(magnitude_variation,magnitude,nbr_regions)
@@ -92,6 +113,9 @@ func binary_solver(pos_2D:Vector2):
 ## Checks if a position is inside a polygon
 func is_inside_polygon(pos_2D:Vector2,polygon_indx:int)-> bool:
 	#position outside the polygon box with padding
+	if (pos_2D.x < mesh_extremums[polygon_indx]["min_x"] or pos_2D.x > mesh_extremums[polygon_indx]["max_x"] or
+			pos_2D.y< mesh_extremums[polygon_indx]["min_z"] or pos_2D.y > mesh_extremums[polygon_indx]["max_z"] ):
+		return false
 	var edge_pos:Vector2 = Vector2(mesh_extremums[polygon_indx].max_x + .1 ,0) 
 	var nbr_collisions:int=0
 	for sides:Dictionary in polygon_array[polygon_indx]:
