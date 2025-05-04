@@ -58,7 +58,8 @@ func _get_triangle_array(center:Vector3,triangle_size:float,start_offset:Vector2
 	return mesh_array
 
 ## Returns a list of all triangles
-func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
+func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
+		magnitude_variation:int) -> Array[MeshInstance3D]:
 	var meshs:Array[MeshInstance3D]
 	polygon_array.clear()
 	mesh_extremums.clear()
@@ -70,9 +71,13 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[Me
 		var x:float = i/float(nbr_regions)
 		var triangle_size:float = x  * size
 		var offset = process_start_offset(start_offset,x,size)
-		var triangle_mesh:MeshInstance3D = draw_multi_line(_get_triangle_array(center,triangle_size,offset,i-1))
+		var color = get_region_color(x,magnitude_variation)
+		var triangle_array:Array[Vector3] = _get_triangle_array(center,triangle_size,offset,i-1)
+		var triangle_mesh:MeshInstance3D = draw_multi_line(triangle_array,color)
 		meshs.append(triangle_mesh)
 	var offset = process_start_offset(start_offset,1,size)
-	var triangle_mesh:MeshInstance3D = draw_multi_line(_get_triangle_array(center,size,offset,nbr_regions-1))
+	var color = get_region_color(1,magnitude_variation)
+	var triangle_array:Array[Vector3] = _get_triangle_array(center,size,offset,nbr_regions-1)
+	var triangle_mesh:MeshInstance3D = draw_multi_line(triangle_array,color)
 	meshs.append(triangle_mesh)
 	return meshs

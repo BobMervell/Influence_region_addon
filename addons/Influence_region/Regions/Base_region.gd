@@ -24,7 +24,8 @@ var polygon_array:Array[Array]
 var mesh_extremums:Array[Dictionary]
 
 ## Template function overriden by every child, returns a list with every shape to draw
-func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
+func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
+		magnitude_variation:int) -> Array[MeshInstance3D]:
 	return []
 
 ## Updates the extemums of current mesh and the total region
@@ -33,6 +34,15 @@ func update_extremum(mesh_indx:int,pos:Vector3) -> void:
 	mesh_extremums[mesh_indx]["min_x"] = min(mesh_extremums[mesh_indx]["min_x"],pos.x)
 	mesh_extremums[mesh_indx]["max_z"] = max(mesh_extremums[mesh_indx]["max_z"],pos.z)
 	mesh_extremums[mesh_indx]["min_z"] = min(mesh_extremums[mesh_indx]["min_z"],pos.z)
+
+func get_region_color(region_x:float,magnitude_variation:int)-> Color:
+	if magnitude_variation == MagnitudeVariation.Constant:
+		return Color.RED
+	elif magnitude_variation == MagnitudeVariation.Ascending:
+		return lerp(Color.YELLOW,Color.RED,region_x)
+	elif magnitude_variation == MagnitudeVariation.Descending:
+		return lerp(Color.RED,Color.YELLOW,region_x)
+	return Color.WHITE
 
 func process_start_offset(start_offset:Vector2,x:float,radius:float)->Vector2:
 	var offset:Vector2 = start_offset

@@ -13,7 +13,10 @@ extends Node
 @export var solver_type: BaseRegion.SolverType = BaseRegion.SolverType.Sequential
 
 ## The way the magnitude varies when the position get's further away from the center
-@export var magnitude_variation:BaseRegion.MagnitudeVariation = BaseRegion.MagnitudeVariation.Constant
+@export var magnitude_variation:BaseRegion.MagnitudeVariation = BaseRegion.MagnitudeVariation.Constant:
+	set(new_value):
+		magnitude_variation = new_value
+		_draw_perimeter()
 
 ## The different shapes available.
 ## [Br][B]Note:[/B] BaseRegion is not to be directly used it is a base class for the different shapes
@@ -62,7 +65,8 @@ func _draw_perimeter()-> void:
 	for child in get_children():
 		if child != marker_3d : remove_child(child)
 	if draw_region:
-		for elt in region_shape.get_meshs(region_position_3D,nbr_regions,start_offset):
+		for elt in region_shape.get_meshs(region_position_3D,nbr_regions,
+				start_offset,magnitude_variation):
 			add_child(elt)
 	## DEPRECATED 
 	## (only used for developpement debugging )

@@ -28,7 +28,8 @@ func _get_circle_array(center:Vector3,circle_radius:float,start_offset:Vector2,c
 	return mesh_array
 
 ## Returns a list of all circles
-func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[MeshInstance3D]:
+func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
+		magnitude_variation:int) -> Array[MeshInstance3D]:
 	var meshs:Array[MeshInstance3D]
 	circles.clear()
 	mesh_extremums.clear()
@@ -40,14 +41,16 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2) -> Array[Me
 				"radius":pow(circle_radius,2)
 				})
 		var circle_array:Array[Vector3] = _get_circle_array(center,circle_radius,offset,i-1)
-		var circle_mesh:MeshInstance3D = draw_multi_line(circle_array)
+		var color = get_region_color(x,magnitude_variation)
+		var circle_mesh:MeshInstance3D = draw_multi_line(circle_array,color)
 		meshs.append(circle_mesh)
 	circles.append({
 				"radius":pow(radius,2)
 				})
 	var offset = process_start_offset(start_offset,1,radius)
 	var circle_array:Array[Vector3] = _get_circle_array(center,radius,offset,nbr_regions-1)
-	var circle_mesh:MeshInstance3D = draw_multi_line(circle_array)
+	var color = get_region_color(1,magnitude_variation)
+	var circle_mesh:MeshInstance3D = draw_multi_line(circle_array,color)
 	meshs.append(circle_mesh)
 	return meshs
 
