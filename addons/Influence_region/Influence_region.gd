@@ -58,15 +58,15 @@ class_name InfluenceRegion
 
 var start_offset:Vector2=Vector2.ZERO
 var region_position_3D:Vector3 = Vector3.ZERO
-var line_childs:Array
+var line_childs:Array[MeshInstance3D]
 
 func _draw_perimeter()-> void:
 	if not region_shape: return
-	for child in line_childs:
+	for child:MeshInstance3D in line_childs:
 		remove_child(child)
 	line_childs.clear()
 	if draw_region:
-		for elt in region_shape.get_meshs(region_position_3D,nbr_regions,
+		for elt:MeshInstance3D in region_shape.get_meshs(region_position_3D,nbr_regions,
 				start_offset,magnitude_variation):
 			add_child(elt)
 			line_childs.append(elt)

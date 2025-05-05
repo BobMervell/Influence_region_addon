@@ -12,13 +12,13 @@ enum MagnitudeVariation {Constant,Ascending,Descending}
 		sub_regions_distribution.changed.connect(func() -> void: on_parameter_updated.emit() )
 		on_parameter_updated.emit()
 func _create_default_curve() -> Curve:
-	var curve = Curve.new()
+	var curve:Curve = Curve.new()
 	curve.add_point(Vector2.ZERO,Curve.TANGENT_LINEAR, Curve.TANGENT_LINEAR)
 	curve.add_point(Vector2.ONE, Curve.TANGENT_LINEAR)
 	curve.changed.connect(func() -> void: on_parameter_updated.emit() )
 	return curve
 
-@export_range(.1,100) var detection_height:int=1.
+@export_range(.1,100) var detection_height:float=1.
 
 ## List of list list of thw points in each side of the polygon
 var polygon_array:Array[Array]
@@ -31,8 +31,8 @@ var total_extremums:Dictionary[String,float] = {
 	}
 
 ## Template function overriden by every child, returns a list with every shape to draw
-func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
-		magnitude_variation:int) -> Array[MeshInstance3D]:
+func get_meshs(_center:Vector3, _nbr_regions:int,_start_offset:Vector2,
+		_magnitude_variation:int) -> Array[MeshInstance3D]:
 	return []
 
 ## Updates the extemums of current mesh and the total region
@@ -89,19 +89,20 @@ func find_first_greater_than(solver_type:SolverType,pos_2D:Vector2) -> float:
 
 ## Solves each sub-region sequentially
 func sequential_solver(pos_2D:Vector2) -> int:
-	for i in range(polygon_array.size()):
+	for i:int in range(polygon_array.size()):
 		if is_inside_polygon(pos_2D,i):
 			return i
 	return polygon_array.size() # final output -> 0
 
 ## Solves each sub-region using binary algorithm (dichotomie)
-func binary_solver(pos_2D:Vector2):
+func binary_solver(pos_2D:Vector2) -> float:
 	var low: int = 0
 	var high: int = polygon_array.size()
 	var result: float = polygon_array.size()
-	var i=0
+	var i:int=0
 	while low <= high and i < polygon_array.size():
 		i += 1
+		@warning_ignore("integer_division")
 		var mid: int = (low + high) / 2
 		if is_inside_polygon(pos_2D,mid):
 			high = mid 
@@ -113,16 +114,20 @@ func binary_solver(pos_2D:Vector2):
 ## Checks if a position is inside a polygon
 func is_inside_polygon(pos_2D:Vector2,polygon_indx:int)-> bool:
 	#position outside the polygon box with padding
-	if (pos_2D.x < mesh_extremums[polygon_indx]["min_x"] or pos_2D.x > mesh_extremums[polygon_indx]["max_x"] or
-			pos_2D.y< mesh_extremums[polygon_indx]["min_z"] or pos_2D.y > mesh_extremums[polygon_indx]["max_z"] ):
+	var polygon_extrememuns:Dictionary = mesh_extremums[polygon_indx]
+	if (pos_2D.x < polygon_extrememuns["min_x"] or pos_2D.x > polygon_extrememuns["max_x"] or
+			pos_2D.y< polygon_extrememuns["min_z"] or pos_2D.y > polygon_extrememuns["max_z"] ):
 		return false
-	var edge_pos:Vector2 = Vector2( mesh_extremums[polygon_indx].max_x + 1 ,0) 
+	@warning_ignore_start("unsafe_call_argument")
+	var edge_pos:Vector2 = Vector2( polygon_extrememuns["max_x"] + 1 ,0) 
 	var nbr_collisions:int=0
 	for sides:Dictionary in polygon_array[polygon_indx]:
 		var A:Vector2 = Vector2(sides.A.x,sides.A.z)
 		var B:Vector2 = Vector2(sides.B.x,sides.B.z)
+		
 		if do_vectors_collides(pos_2D,edge_pos,A,B):
 			nbr_collisions +=1
+	@warning_ignore_restore("unsafe_call_argument")
 	if nbr_collisions % 2 == 0:
 		return false
 	return true
@@ -131,20 +136,20 @@ func is_inside_polygon(pos_2D:Vector2,polygon_indx:int)-> bool:
 func do_vectors_collides(vec1_A:Vector2,vec1_B:Vector2,
 		vec2_A:Vector2,vec2_B:Vector2) -> bool:
 	 # get infinite line expression of first segment
-	var a1 = vec1_B.y - vec1_A.y
-	var b1 = vec1_A.x - vec1_B.x
-	var c1 = (vec1_B.x * vec1_A.y) - (vec1_A.x * vec1_B.y)
+	var a1:float = vec1_B.y - vec1_A.y
+	var b1:float = vec1_A.x - vec1_B.x
+	var c1:float = (vec1_B.x * vec1_A.y) - (vec1_A.x * vec1_B.y)
 	
 	# get infinite line expression of first segment
-	var a2 = vec2_B.y - vec2_A.y
-	var b2 = vec2_A.x - vec2_B.x
-	var c2 = (vec2_B.x * vec2_A.y) - (vec2_A.x * vec2_B.y)
+	var a2:float = vec2_B.y - vec2_A.y
+	var b2:float = vec2_A.x - vec2_B.x
+	var c2:float = (vec2_B.x * vec2_A.y) - (vec2_A.x * vec2_B.y)
 	
 	if is_equal_approx(a1*b2 , a2*b1): return false # Colinear
 	
 	# solve first line equation with both segments points 
-	var p1 = (a1 * vec2_A.x) + (b1 * vec2_A.y) + c1
-	var p2 = (a1 * vec2_B.x) + (b1 * vec2_B.y) + c1
+	var p1:float = (a1 * vec2_A.x) + (b1 * vec2_A.y) + c1
+	var p2:float = (a1 * vec2_B.x) + (b1 * vec2_B.y) + c1
 	
 	#if p1 and p2 same sign then they are on the same side of the line thus can't have crossed first line
 	if ((p1 > 0 and p2 > 0 ) or (p1 < 0 and p2 < 0 )): return false
@@ -161,7 +166,7 @@ func do_vectors_collides(vec1_A:Vector2,vec1_B:Vector2,
 ## format the output amplitude to follow the current MagnitudeVariation mode
 func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_regions:int) -> float:
 	if magnitude_variation == MagnitudeVariation.Constant:
-		magnitude = magnitude/float(nbr_regions)
+		magnitude = (magnitude+.1)/float(nbr_regions)
 		if magnitude >= 1: return 0
 		return ceil(magnitude)
 	elif magnitude_variation == MagnitudeVariation.Ascending:
@@ -174,10 +179,10 @@ func format_output(magnitude_variation:MagnitudeVariation,magnitude:float,nbr_re
 	return 0
 
 ## Draw a multiple lines
-func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on:=false) -> MeshInstance3D:
-	var mesh_instance := MeshInstance3D.new()
-	var immediate_mesh := ImmediateMesh.new()
-	var material := ORMMaterial3D.new()
+func draw_multi_line(position_list:Array[Vector3], color:Color=Color.WHITE, shadow_on:bool=false) -> MeshInstance3D:
+	var mesh_instance:MeshInstance3D= MeshInstance3D.new()
+	var immediate_mesh:ImmediateMesh= ImmediateMesh.new()
+	var material:ORMMaterial3D= ORMMaterial3D.new()
 
 	mesh_instance.mesh = immediate_mesh
 	if shadow_on: mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
@@ -185,7 +190,7 @@ func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on
 
 	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
 	immediate_mesh.surface_add_vertex(position_list[0])
-	for i in range(1,position_list.size()-1):
+	for i:int in range(1,position_list.size()-1):
 		immediate_mesh.surface_add_vertex(position_list[i])
 		immediate_mesh.surface_add_vertex(position_list[i])
 	immediate_mesh.surface_add_vertex(position_list[-1])
@@ -197,8 +202,9 @@ func draw_multi_line(position_list:Array[Vector3], color:=Color.WHITE, shadow_on
 
 ##DEPRECATED
 ## (only used for developpement debugging )
-func get_extremum_meshs(center) -> Array[MeshInstance3D]:
+func get_extremum_meshs(center:Vector3) -> Array[MeshInstance3D]:
 	var meshs:Array[MeshInstance3D]
+	@warning_ignore_start("unsafe_call_argument")
 	for ext:Dictionary in mesh_extremums:
 		var arr:Array[Vector3] = [
 			Vector3(ext.max_x,center.y,ext.max_z),
@@ -208,4 +214,5 @@ func get_extremum_meshs(center) -> Array[MeshInstance3D]:
 			Vector3(ext.max_x,center.y,ext.max_z)
 		]
 		meshs.append(draw_multi_line(arr,Color.RED))
+	@warning_ignore_restore("unsafe_call_argument")
 	return meshs

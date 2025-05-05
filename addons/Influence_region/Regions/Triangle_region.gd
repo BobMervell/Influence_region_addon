@@ -28,14 +28,14 @@ func _get_triangle_array(center:Vector3,triangle_size:float,start_offset:Vector2
 	})
 	var mesh_array:Array[Vector3] = [center] #A
 	mesh_array.append(center + Vector3((length_A_B*triangle_size),0,0)) #B	
-	var alpha = acos( ((length_A_B*triangle_size)**2 + (length_C_A*triangle_size)**2 - (length_B_C*triangle_size)**2)/(2*(length_A_B*triangle_size)*(length_C_A*triangle_size)) )
+	var alpha:float = acos( ((length_A_B*triangle_size)**2 + (length_C_A*triangle_size)**2 - (length_B_C*triangle_size)**2)/(2*(length_A_B*triangle_size)*(length_C_A*triangle_size)) )
 	mesh_array.append(center + Vector3(cos(alpha) * (length_C_A*triangle_size) ,0,sin(alpha) * (length_C_A*triangle_size))) #C
 	mesh_array.append(center) #A
 	
 	# offset triangle to put centroid in the center
 	var centroid:Vector3 = (mesh_array[0] + mesh_array[1] + mesh_array[2])/3
 
-	var diff = (center+Vector3(start_offset.x,0,start_offset.y)) -centroid
+	var diff:Vector3 = (center+Vector3(start_offset.x,0,start_offset.y)) -centroid
 	for i in range(mesh_array.size()):
 		mesh_array[i] += diff
 		update_extremum(triangle_nbr,mesh_array[i])
@@ -67,17 +67,12 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
 			(length_B_C >= length_A_B +length_C_A) or 
 			(length_C_A >= length_A_B +length_B_C) ):
 		return meshs
-	for i in range(1,nbr_regions):
+	for i in range(1,nbr_regions+1):
 		var x:float = i/float(nbr_regions)
 		var triangle_size:float = x  * size
-		var offset = process_start_offset(start_offset,x,size)
-		var color = get_region_color(x,magnitude_variation)
-		var triangle_array:Array[Vector3] = _get_triangle_array(center,triangle_size,offset,i-1)
-		var triangle_mesh:MeshInstance3D = draw_multi_line(triangle_array,color)
+		var triangle_offset:Vector2 = process_start_offset(start_offset,x,size)
+		var triangle_color:Color = get_region_color(x,magnitude_variation)
+		var triangle_array:Array[Vector3] = _get_triangle_array(center,triangle_size,triangle_offset,i-1)
+		var triangle_mesh:MeshInstance3D = draw_multi_line(triangle_array,triangle_color)
 		meshs.append(triangle_mesh)
-	var offset = process_start_offset(start_offset,1,size)
-	var color = get_region_color(1,magnitude_variation)
-	var triangle_array:Array[Vector3] = _get_triangle_array(center,size,offset,nbr_regions-1)
-	var triangle_mesh:MeshInstance3D = draw_multi_line(triangle_array,color)
-	meshs.append(triangle_mesh)
 	return meshs

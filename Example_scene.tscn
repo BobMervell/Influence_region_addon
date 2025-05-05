@@ -12,14 +12,14 @@ point_count = 2
 script = ExtResource("3_gmeug")
 radius = 1.0
 sub_regions_distribution = SubResource("Curve_gmeug")
-detection_height = 1
+detection_height = 1.0
 metadata/_custom_type_script = "uid://0tmn35a8d56q"
 
 [node name="Node" type="Node"]
 script = ExtResource("1_oc8cd")
 
 [node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(0.999792, -0.0204189, 0, 0.0204189, 0.999792, 0, 0, 0, 1, -0.0666623, 0.01, -0.00203928)
+transform = Transform3D(0.999792, -0.0204189, 0, 0.0204189, 0.999792, 0, 0, 0, 1, -1.14234, 0.01, 0.488885)
 
 [node name="InfluenceRegion" type="Node" parent="."]
 script = ExtResource("1_qcqnb")

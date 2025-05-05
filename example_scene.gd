@@ -6,8 +6,8 @@ extends Node
 @onready var influence_region: InfluenceRegion = $InfluenceRegion
 @onready var marker_3d: Marker3D = $Marker3D
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	influence_region = $InfluenceRegion
 	if not magnitude_processing_on: return
-	var x = influence_region.get_distance_magnitude(marker_3d.position)
+	var x:float = influence_region.get_distance_magnitude(marker_3d.position)
 	print(x)
