@@ -36,7 +36,7 @@ func _get_triangle_array(center:Vector3,triangle_size:float,start_offset:Vector2
 	var centroid:Vector3 = (mesh_array[0] + mesh_array[1] + mesh_array[2])/3
 
 	var diff:Vector3 = (center+Vector3(start_offset.x,0,start_offset.y)) -centroid
-	for i in range(mesh_array.size()):
+	for i:int in range(mesh_array.size()):
 		mesh_array[i] += diff
 		update_extremum(triangle_nbr,mesh_array[i])
 	
@@ -67,7 +67,7 @@ func get_meshs(center:Vector3, nbr_regions:int,start_offset:Vector2,
 			(length_B_C >= length_A_B +length_C_A) or 
 			(length_C_A >= length_A_B +length_B_C) ):
 		return meshs
-	for i in range(1,nbr_regions+1):
+	for i:int in range(1,nbr_regions+1):
 		var x:float = i/float(nbr_regions)
 		var triangle_size:float = x  * size
 		var triangle_offset:Vector2 = process_start_offset(start_offset,x,size)
