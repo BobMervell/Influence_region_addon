@@ -1,7 +1,7 @@
 # InfluenceRegion
 
 **InfluenceRegion Addon for Godot**  
-A lightweight and efficient addon for Godot 4.4 ( mey work but untested for later versions) that introduces a custom **InfluenceRegion** node to calculate position-based magnitudes within triangle or circular shapes. Ideal for fast, customizable 3D influence zones that can act as performance-friendly alternatives to `Area3D`.
+A lightweight and efficient addon for Godot 4.4 ( may work but untested for later versions) that introduces a custom **InfluenceRegion** node to calculate position-based magnitudes within triangle or circular shapes. Ideal for fast, customizable 3D influence zones that can act as performance-friendly alternatives to `Area3D`.
 
 
 ## Repository States
